@@ -15,7 +15,6 @@ driver.get(url)
 
 #get the list of the download attribute
 links_list = driver.find_elements_by_partial_link_text("Amtsblatt der Stadt")
-i = 0
 for link in links_list:
     filename= link.text+'.pdf'
     # request for the pdf file
@@ -27,5 +26,4 @@ for link in links_list:
     client = session.resource('s3')
     key = 'text1.txt'
     res = client.Bucket('amtsblatt').put_object(Key=filename, Body=r.content)
-    i= i+1
 driver.close()
