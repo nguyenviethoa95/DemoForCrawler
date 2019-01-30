@@ -4,3 +4,8 @@ AWS_CONFIG= {
 }
 
 CURRENT_REGION = 'eu-central-1'
+
+RDS_CONFIG={
+    'MASTER_USERNAME':'master',
+    'MASTER_PASSWORD':'justanotherpassword'
+}
