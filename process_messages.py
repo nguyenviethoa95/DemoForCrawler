@@ -39,5 +39,4 @@ while True:
     # delete the message from the queue
     sqs.delete_message(
         QueueUrl = queue_url,
-
     )

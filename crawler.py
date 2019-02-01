@@ -13,19 +13,19 @@ links_seen= set()
 db= records.Database('')
 
 db.query('''CREATE TABLE IF NOT EXISTS links(
-            url text PRIMARY KEY;
+            url varchar(256) PRIMARY KEY;
             created_at datetime,
             visited_at datetime NULL)''')
 
 db.query ('''CREATE TABLE IF NOT EXISTS numbers (
-                url text, 
+                url varchar(256), 
                 number integer, 
                 PRIMARY KEY (url, number))''')
 
 def store_link(url):
     try:
         db.query('''INSERT INTO links (url,created_at)
-                    VALUES (:url, CURRENT_TIMESTAMP)''',url=url)
+                    VALUES (:url, CURRENT_TIMESTAMP)''', url=url)
     except IntegrityError as ie:
         # This link is already exists, do nothing
         pass
