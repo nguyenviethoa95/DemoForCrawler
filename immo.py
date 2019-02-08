@@ -3,6 +3,7 @@ import boto3
 import requests
 import config
 
+
 # launch url
 url = ""
 

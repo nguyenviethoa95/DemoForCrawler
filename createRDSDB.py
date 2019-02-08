@@ -17,8 +17,7 @@ except Exception as e:
 
 import pymysql
 
-conn = pymysql.connect(host=hostname, port=3306, user='master', password ='tha'
-                                                                          'ian8355',db='webcrawler',connect_timeout=5)
+conn = pymysql.connect(host=hostname, port=3306, user='master', password ='',db='webcrawler',connect_timeout=5)
 
 cur = conn.cursor()
 
