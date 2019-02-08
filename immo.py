@@ -4,7 +4,7 @@ import requests
 import config
 
 # launch url
-url = "https://www.nuernberg.de/internet/pr/amtsblatt_2018.html"
+url = ""
 
 client = boto3.client('s3')
 
