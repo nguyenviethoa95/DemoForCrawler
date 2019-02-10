@@ -10,8 +10,6 @@ from scrapy.crawler import CrawlerProcess
 class URL_Spider(CrawlSpider):
     # the name of the spider
     name ='urlspider'
-
-
     # the domain that are allowed
     allowed_domains=["gelsenkirchen.de"]
     # the url to start with
