@@ -5,7 +5,9 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import Rule, CrawlSpider
 from scrapy_spiders.items import ScrapperItem
 from scrapy.crawler import CrawlerProcess
-
+import requests
+from scrapy.http import Request
+import os
 
 class URL_Spider(CrawlSpider):
     # the name of the spider
@@ -13,45 +15,54 @@ class URL_Spider(CrawlSpider):
 
 
     # the domain that are allowed
-    allowed_domains=["gelsenkirchen.de"]
+    allowed_domains=["landkreishildesheim.de"]
     # the url to start with
-    start_url = ["www.gelsenkirchen.de/de/rathaus/informationen/amtsblatt/index.aspx"]
+    start_urls = [u"https://www.landkreishildesheim.de/Politik-Verwaltung/Verwaltung/Amtsblätter"]
     # this spider has one rule: extract all (unique and cannonicalized ) links, follow them and follow them and parse them using the parse_items method
     rules = [
         Rule(
             LinkExtractor(
                 canonicalize=True,
-                unique=True
+                unique=True,
+                allow_domains=('landkreishildesheim.de'),
+                tags=('a'),
+                attrs=('href'),
+                deny_extensions=('jpg','png')
             ),
-            follow=True,
-            callback="parse_items"
+            follow=False,
+            callback="parse_media_content"
         )
     ]
 
-    def parse_items(self,response):
-    # the list of items that are found on the particular page
-        items=[]
-    #only extract cannocalized and unique links (with respect to the current page)
-        links = LinkExtractor(canonicalize= True, unique= True).extract_links(response)
-    # Now go through all the found links
-        for link in links:
-            # check whether the domain of the url of the link is allowed
-            is_allowed =False
-            for allowed_domain in self.allowed_domains:
-                if allowed_domain in link.url:
-                    is_allowed = True
+    def parse_media_content (self,response):
+        link = response.url
+        item = ScrapperItem()
+        item['url_from']= link
+        try:
+            res =requests.get(link)
+            if res.headers['Content-Type']=='application/pdf':
+                item = ScrapperItem()
+                item['url_from']= link
+                item['url_to']='pdf found'
+                save_pdf(link)
+        except requests.RequestException  as a :
+            print (a)
 
-            #if it is allowed, create a new item and add it to the list of found items
-            if is_allowed:
-                item= ScrapperItem()
-                item['url_from']=response.url
-                item['url_to']=link.url
-                items.append(item)
-        yield items
+def save_pdf(url):
+        #name for the file
+        print(url)
+        name = url.split('/')[-1]
+        print(name)
+        path = str(os.getcwd())+'/temp/'+name+'.pdf'
+        print(path)
+        with open( path,'wb') as file:
+            r = requests.get(url)
+            file.write(r.content)
+            print(r.headers)
 
 if __name__=="__main__":
     process =CrawlerProcess({
-        'USER_AGENT': 'Mozilla/5.0',
+        'USER_AGENT': "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0",
         'FEED_URI':'output_csv'
     })
     process.crawl(URL_Spider)
