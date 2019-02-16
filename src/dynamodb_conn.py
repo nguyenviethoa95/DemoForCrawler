@@ -9,9 +9,3 @@
 #
 # res = dynamodb.put_item(
 #     Item = dict
-# )
-
-from scrapy_spiders import url_spiders
-
-spider = url_spiders.URL_Spider()
-print(spider)
