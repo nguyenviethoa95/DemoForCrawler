@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import boto3
 import records
-from sqlalchemy.exc import  IntegrityError
+from sqlalchemy.exc import IntegrityError
+
 # Create a connection to the AWS MS SQL
 client = boto3.client('rds')
 response = client.mp

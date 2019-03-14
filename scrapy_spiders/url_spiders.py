@@ -3,7 +3,7 @@ __author__ = 'IMMOWELTAG\vnguyen'
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import Rule, CrawlSpider
-from scrapy_spiders.items import ScrapperItem
+from scrapy_spiders.items import ScrapperItems
 from scrapy.crawler import CrawlerProcess
 
 
