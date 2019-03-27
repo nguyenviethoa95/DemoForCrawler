@@ -1,6 +1,6 @@
 import requests
-from baseclass import BotoClient,BotoResource
-import uuid
+from src.baseclass import BotoResource, BotoClient
+
 
 class href_link:
     def __init__(self, url,title ):

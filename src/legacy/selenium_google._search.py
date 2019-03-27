@@ -11,9 +11,9 @@ import config
 import boto3
 
 # open the dynamodb session
-session = boto3.Session(region_name=config.CURRENT_REGION,
-                        aws_access_key_id=config.AWS_CONFIG['AWS_SERVER_PUBLIC_KEY'],
-                        aws_secret_access_key=config.AWS_CONFIG['AWS_SERVER_SECRET_KEY'])
+session = boto3.Session(region_name='eu-central-1',
+                        aws_access_key_id='AKIAJHK4UKVNUFHNWRVQ',
+                        aws_secret_access_key='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')
 # read the csv file and get cities list:
 df = pandas.read_csv('seed_gross_mittel_list.csv',sep=';',header=None,encoding='iso-8859-1')
 
@@ -42,6 +42,6 @@ for index,row in df.iterrows():
     obj['name'] = str(row[1])
     obj['url']= urls
     output = json.dumps(obj, ensure_ascii=False).encode("utf-8")
-    dynamodb = session.resource('dynamodb').Table('url_cities')
+    dynamodb = session.resource('dynamodb').Table('urls_cities')
     res = dynamodb.put_item(Item=json.loads(output))
     print(row[1],'\t has been processed')

@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-from baseclass import Content
+from src.baseclass import Content
+
 
 class Crawler:
 
