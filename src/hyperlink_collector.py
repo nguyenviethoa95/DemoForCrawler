@@ -41,7 +41,8 @@ class Hyperlink_Collector:
                 "uuid": str(id),
                 "valid": True,
                 "visited": False,
-                "visited_on": "None"
+                "visited_on": "None",
+                "downloaded_tries_number":0
             }
         )
 
@@ -82,8 +83,10 @@ class Hyperlink_Collector:
             if 'pdf' in href and self.isURLDupilcate(href) is False:
                self.insert_hyperlink(href, text)
 
+def main(url):
+    collector = Hyperlink_Collector(url)
+    collector.collect()
 
 if __name__=="__main__":
     url = 'https://www.bernburg.de/de/amtsblaetter-2019.html'
-    collector = Hyperlink_Collector(url)
-    collector.collect()
+    main(url)
