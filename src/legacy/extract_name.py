@@ -1,10 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
-import re
 import csv
 import json
 import boto3
-import config
+from src import config
 from boltons.iterutils import remap
 
 bundeslaender =['Baden-Württemberg',

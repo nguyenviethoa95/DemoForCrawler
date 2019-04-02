@@ -66,7 +66,7 @@ class Hyperlink_Processor:
             },
             UpdateExpression="SET valid = :var1",
             ExpressionAttributeValues={
-                ':var1': True,
+                ':var1': False,
             },
         )
 
