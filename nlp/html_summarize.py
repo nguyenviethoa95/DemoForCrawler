@@ -10,7 +10,7 @@ from sumy.summarizers.lex_rank import LexRankSummarizer as Summarizer
 from sumy.nlp.stemmers import Stemmer
 
 from sumy.utils import get_stop_words
-import config
+import src.config as config
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 import json
