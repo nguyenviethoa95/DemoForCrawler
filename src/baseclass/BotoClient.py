@@ -1,5 +1,5 @@
 import boto3
-import config
+import src.config as config
 
 class BotoClient:
     def __init__(self,resource):
