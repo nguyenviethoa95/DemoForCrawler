@@ -2,59 +2,65 @@ from __future__ import absolute_import
 from __future__ import division, print_function, unicode_literals
 
 from sumy.parsers.html import HtmlParser
+from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.lex_rank import LexRankSummarizer
+#from sumy.summarizers.lsa import LsaSummarizer as Summarizer
+#from sumy.summarizers.text_rank import TextRankSummarizer as Summarizer
+from sumy.summarizers.lex_rank import LexRankSummarizer as Summarizer
 from sumy.nlp.stemmers import Stemmer
-from sumy.summarizers.text_rank import TextRankSummarizer  as Summarizer
+
 from sumy.utils import get_stop_words
+import config
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+import json
+from boltons.iterutils import remap
 import requests
-from boto3.dynamodb.conditions import Attr
-from src.baseclass import BotoClient
+import time
+
 LANGUAGE = "german"
 SENTENCES_COUNT = 10
 
-class Text_Summarizer():
+if __name__ == "__main__":
+    # create conn to dynamodb
+    session = boto3.Session(region_name=config.CURRENT_REGION,
+        aws_access_key_id=config.AWS_CONFIG['AWS_SERVER_PUBLIC_KEY'],
+        aws_secret_access_key=config.AWS_CONFIG['AWS_SERVER_SECRET_KEY'])
+    table = session.resource('dynamodb').Table('url_cities')
+    table1 = session.resource('dynamodb').Table('result_summarizer')
+    response1= table.scan()
+    keys =''
+    for a in response1['Items']:
+        keys =keys +' '+ a['ID']
 
-    def __init__(self,conn,table_name):
-        self.conn= conn
-        self.table= conn.Table(table_name)
+    # scan the url_cities and get all items
+    #fe = Key('ID')
+    response = table.scan()
+    items={}
+    for i in response['Items']:
+        items[i['ID']]= i['url']
 
-    def get_next_link_to_visit(self):
-        table = self.conn.Table('seeds')
-        response = table.scan(
-            FilterExpression= Attr('textrank').not_exists() & Attr('valid').eq(True),
-        )
-        result = len(response['Items'])
-        return (None,None) if result == 0 else (response['Items'][0]['ID'], response['Items'][0]['url'])
+    result=[]
 
-    def mark_invalid(self,id):
-        self.table.update_item(
-            Key={
-                'ID': str(id)
-            },
-            UpdateExpression="SET valid = :var1",
-            ExpressionAttributeValues={
-                ':var1': False,
-            },
-        )
+    for i in items:
 
-    def mark_valid(self,id):
-        self.table.update_item(
-            Key={
-                'ID': str(id)
-            },
-            UpdateExpression="SET valid = :var1",
-            ExpressionAttributeValues={
-                ':var1': True,
-            },
-        )
+        url = items[i][0]
+        print(url)
+        doable=False
 
-    def parse_html(self,id,url):
-        if requests.head(url).status_code == 200:
+        try:
+            t0 = time.time()
+            requests.get(url)
+            doable=True
+        except Exception as x:
+            print(x)
+            doable=False
+            t1 = time.time()
+            print('Took', t1 - t0, 'seconds')
 
+        if (doable== True and requests.head(url).status_code ==200):
             parser = HtmlParser.from_url(url, Tokenizer(LANGUAGE))
-
-            if len(parser.document.sentences) != 0:
+            if len(parser.document.sentences) !=0:
                 # or for plain text files
                 # parser = PlaintextParser.from_file("document.txt", Tokenizer(LANGUAGE))
                 stemmer = Stemmer(LANGUAGE)
@@ -66,39 +72,24 @@ class Text_Summarizer():
                 for sentence in summarizer(parser.document, SENTENCES_COUNT):
                     sen.append(str(sentence))
 
-                text = '.'.join(sen)
-                #print(text)
-                text.replace(u'\n', '')
-                self.mark_valid(id)
-                return {'ID':str(id),'textrank':text}
-            else:
-                self.mark_invalid(id)
-                return None
-        else:
-            self.mark_invalid(id)
-            return None
+                text ='.'.join(sen)
+                text.replace(u'\n','')
+                obj ={}
+                obj['ID']= str(i)
+                obj['TextRank']=text
 
-    def put_object(self,id,text):
-        self.table.update_item(
-            Key={
-                'ID': str(id)
-            },
-            UpdateExpression="SET textrank = :var1",
-            ExpressionAttributeValues={
-                ':var1': text,
-            },
-        )
+                #drop_falsey = lambda path, key, value: bool(value)
+                #clean = remap(obj, visit=drop_falsey)
 
-    def start(self):
-        id,url = self.get_next_link_to_visit()
-        while url is not None:
-           # print(id, url)
-            obj= self.parse_html(id,url)
-            if obj is not None:
-                self.put_object(obj['ID'],obj['textrank'])
-                print(url + 'is processed')
-                id,url = self.get_next_link_to_visit()
-
-if __name__ == "__main__":
-    summarizer= Text_Summarizer(BotoClient.BotoClient('dynamodb').connect(), 'seeds')
-    summarizer.start()
+                #output= json.dumps(clean,ensure_ascii=False).encode("utf-8")
+                # write the result back into the table
+                table =  session.resource('dynamodb').Table('result_summerizer')
+                res = table.update_item(
+                    Key={
+                        'ID': str(i)
+                    },
+                    UpdateExpression="SET luhn = :var1",
+                    ExpressionAttributeValues={
+                        ':var1': text,
+                    },
+                )
