@@ -1,6 +1,6 @@
 import pytesseract
 import boto3
-from PIL import Image
+#from PIL import Image
 import pdf2image
 import requests
 from src.baseclass import BotoClient
