@@ -10,8 +10,8 @@ from datetime import datetime
 def lambda_handler():
     # connect to dynamodb
     client = boto3.Session(region_name='eu-central-1',
-                           aws_access_key_id='AKIAJHK4UKVNUFHNWRVQ',
-                           aws_secret_access_key='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')
+                           aws_access_key_id='**************************',
+                           aws_secret_access_key='**************************')
     table = client.resource('dynamodb').Table('seeds')
 
     # create string date for today
