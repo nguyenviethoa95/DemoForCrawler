@@ -10,7 +10,7 @@ chardet==3.0.4
 cryptography==2.5
 cssselect==1.0.3
 html5lib==0.99
-Jinja2==2.8
+Jinja2==2.11.3
 jmespath==0.9.3
 lxml==4.3.0
 Mako==1.0.3
